@@ -20,7 +20,7 @@ G = 1e2
 a = 16 # "a" is here to make things smoother 
 alpha = 1
 
-flag = 0
+flag = 0 # constraint handler flag
 
 def on_collision(arb: Arbiter):
         global flag
@@ -31,27 +31,18 @@ def on_collision(arb: Arbiter):
 player = phys.tri(0, 6, -3, -3, +3, -3, pyxel.COLOR_LIME)
 player.collision_type = PLAYER_COL_TYPE
 
-
-
 sun = phys.circ(pyxel.width / 2, pyxel.height / 2, 15, pyxel.COLOR_YELLOW)
 sun.mass = 1e10
 sun.angular_velocity = 100
-
+sun.collision_type = PLANET_COL_TYPE
 planet = phys.circ(64, 64, 3, pyxel.COLOR_DARKBLUE)
-
 
 ectanus = phys.circ(pyxel.width / 2 + 100, pyxel.height / 2 + 100, 20, pyxel.COLOR_YELLOW)
 ectanus.mass = 1e10
 ectanus.angular_velocity = 100
-
-sun.collision_type = PLANET_COL_TYPE
 ectanus.collision_type = PLANET_COL_TYPE
 
-dist = planet.position - sun.position
-r = dist.length
-
-planet.velocity = dist.normalized().perpendicular() * sqrt(G * S_mass * r / (r + a)**alpha) * 0.5
-
+# setting landable planets constraints
 player.position = (pyxel.width / 2 + 20, pyxel.height / 2)
 p1 = player.junction(sun).pivot()
 p1.max_force = 0
@@ -62,6 +53,11 @@ p2.max_force = 0
 
 player.position = (30, 30)
 
+# adjusting orbiting planet starting velocity
+dist = planet.position - sun.position
+r = dist.length
+planet.velocity = dist.normalized().perpendicular() * sqrt(G * S_mass * r / (r + a)**alpha) * 0.5
+
 space.collision_handler(
     PLAYER_COL_TYPE, PLANET_COL_TYPE, post_solve=on_collision
 )
@@ -69,8 +65,6 @@ space.collision_handler(
 # border with little bit of offset
 L = 48
 phys.margin(-L, -L, pyxel.width + 2 * L, pyxel.width + 2 * L, radius = 5)
-
-
 
 # apply forces
 @space.before_step(sub_steps=True)
@@ -82,28 +76,29 @@ def apply_forces():
 
     planet.force += -F * direction
 
-# draws trajectory on screen
+
 pos_list = deque([planet.position], 128)
 @space.after_step()
 def paint_trajectory():
+    
     global flag
-
     camera.follow(player.position)
 
+    # draws trajectory on screen
     if pyxel.frame_count % 1 == 0:
         pos_list.append(planet.position)
 
     for (x, y) in pos_list:
         camera.pset(x, y, pyxel.COLOR_DARKBLUE)
 
+    # calculate player slingshot vector
     slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2)
     slingshot = slingshot.rotated(180)
 
-    if pyxel.btnp(pyxel.KEY_Q):
-        flag = (flag + 1) % 2
-
+    # manage planet landing
     if flag == 1:
 
+        # find out which planet the player is landing
         d1 = abs(player.position.x - sun.position.x) + abs(player.position.y - sun.position.y)
         d2 = abs(player.position.x - ectanus.position.x) + abs(player.position.y - ectanus.position.y)
         
