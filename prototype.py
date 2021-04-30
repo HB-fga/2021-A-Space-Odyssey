@@ -9,7 +9,7 @@ pyxel.mouse(True)
 
 # create space
 camera = phys.Camera(flip_y = False)
-space = phys.space(elasticity = 1.0, camera = camera, sub_steps=64)
+space = phys.space(elasticity = 1.0, camera = camera)
 
 # define constants
 PLAYER_COL_TYPE = 1
@@ -41,6 +41,8 @@ ectanus = phys.circ(pyxel.width / 2 + 100, pyxel.height / 2 + 100, 20, pyxel.COL
 ectanus.mass = 1e10
 ectanus.angular_velocity = 100
 ectanus.collision_type = PLANET_COL_TYPE
+
+# sun.motor(3 * (- 360)).max_force = 1e5
 
 # setting landable planets constraints
 player.position = (pyxel.width / 2 + 20, pyxel.height / 2)
@@ -80,20 +82,24 @@ def apply_forces():
 pos_list = deque([planet.position], 128)
 @space.after_step()
 def paint_trajectory():
+
+    counter = 0
     
     global flag
     camera.follow(player.position)
 
     # draws trajectory on screen
-    if pyxel.frame_count % 1 == 0:
+    if pyxel.frame_count % 2 == 0:
         pos_list.append(planet.position)
 
     for (x, y) in pos_list:
-        camera.pset(x, y, pyxel.COLOR_DARKBLUE)
+        # coi
+        camera.pset(x, y, counter % 15)
+
+        counter = counter + 1
 
     # calculate player slingshot vector
-    slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2)
-    slingshot = slingshot.rotated(180)
+    slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2).rotated(180)
 
     # manage planet landing
     if flag == 1:
