@@ -10,6 +10,8 @@ class Player(utils.GameObject):
 
     def __init__(self, x, y):
         self.slingshot = Vec2d(0, 0)
+        self.landed_on = None
+        self.planet_joint = None
         self.player_body = phys.tri(0, 6, -3, -3, +3, -3, pyxel.COLOR_LIME)
         self.player_body.position = (x, y)
         self.player_body.elasticity = 1.0
@@ -22,6 +24,7 @@ class Player(utils.GameObject):
             self.player_body.velocity = self.slingshot
             self.player_body.angular_velocity = 0
             self.player_body.angle = self.player_body.velocity.rotated(-90).angle
+            
     
     def draw(self, camera):
         self.slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2).rotated(180)

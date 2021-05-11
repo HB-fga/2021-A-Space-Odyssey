@@ -23,8 +23,8 @@ alpha = 1
 flag = 0 # constraint handler flag
 
 def on_collision(arb: Arbiter):
-        global flag
-        flag = 1
+    global flag
+    flag = 1
 
 # create objects
 
