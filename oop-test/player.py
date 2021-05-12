@@ -20,12 +20,22 @@ class Player(utils.GameObject):
     def update(self, camera):
         self.slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2).rotated(180)
 
+        # Atualiza o ângulo
+        if self.landed_on is not None:
+            p_angle = Vec2d(*(self.player_body.position - self.landed_on.planet_body.position))
+            self.player_body.angle = p_angle.rotated(-90).angle
+
+        # Movimentação
         if pyxel.btnr(pyxel.MOUSE_LEFT_BUTTON):
             self.player_body.velocity = self.slingshot
             self.player_body.angular_velocity = 0
             self.player_body.angle = self.player_body.velocity.rotated(-90).angle
+
+            if self.landed_on is not None:
+                self.planet_joint.max_force = 0
+                self.planet_joint = None
+                self.landed_on = None
             
-    
     def draw(self, camera):
         self.slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2).rotated(180)
 

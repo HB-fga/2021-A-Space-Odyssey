@@ -9,8 +9,6 @@ from easymunk import pyxel as phys, Vec2d
 from easymunk import Constraint, Arbiter
 import pyxel
 
-
-
 class Game:
     def __init__(self):
         self.camera = phys.Camera(flip_y=False)
@@ -19,8 +17,7 @@ class Game:
             elasticity = 1.0,
         )
 
-        self.colFlag = 0
-
+        # Inicializa objetos
         self.state = utils.GameState.RUNNING
 
         self.player = player.Player(30, 30)
@@ -32,21 +29,33 @@ class Game:
         self.planet2 = planet.Planet(180, 110)
         self.planet2.register(self.space, self.message)
 
-        
-
-        self.player.player_body.position = (30, 30)
-
         self.particles = utils.Particles(self.space)
 
+        # Cria margem
         L = 48
         phys.margin(-L, -L, pyxel.width + 2 * L, pyxel.width + 2 * L, radius = 5)
 
+    # Administra colisões
         self.space.collision_handler(
             utils.ColType.PLAYER, utils.ColType.PLANET, post_solve=self.on_collision
         )
 
     def on_collision(self, arb: Arbiter):
-        self.colFlag = 1
+        d1 = abs(self.player.player_body.position.x - self.planet1.planet_body.position.x) + abs(self.player.player_body.position.y - self.planet1.planet_body.position.y)
+        d2 = abs(self.player.player_body.position.x - self.planet2.planet_body.position.x) + abs(self.player.player_body.position.y - self.planet2.planet_body.position.y)
+
+        if self.player.planet_joint is not None:
+            self.player.planet_joint.max_force = 0
+
+        if d1 < d2:
+            self.player.planet_joint = self.player.player_body.junction(self.planet1.planet_body).pivot()
+            self.player.landed_on = self.planet1
+            print("hey")
+        else:
+            self.player.planet_joint = self.player.player_body.junction(self.planet2.planet_body).pivot()
+            self.player.landed_on = self.planet2
+
+        self.player.planet_joint.max_force = float("inf")
 
         for _ in range(2):
             self.particles.emmit(
@@ -64,46 +73,19 @@ class Game:
     def update(self):
         self.space.step(1 / 30, 2)
 
-        if pyxel.btnr(pyxel.MOUSE_LEFT_BUTTON):
-            if self.player.landed_on is not None:
-                self.player.planet_joint.max_force = 0
-                self.player.planet_joint = None
-                self.player.landed_on = None
-
+        # Atualiza lógica caso o jogo esteja rodando
         if self.state is not utils.GameState.GAME_OVER:
             self.player.update(self.camera)
             self.planet1.update()
             self.planet2.update()
-        self.camera.follow(self.player.player_body.position)
 
-        if self.colFlag == 1:
-
-            self.colFlag = 0
-
-            # find out which planet the player is landing
-            d1 = abs(self.player.player_body.position.x - self.planet1.planet_body.position.x) + abs(self.player.player_body.position.y - self.planet1.planet_body.position.y)
-            d2 = abs(self.player.player_body.position.x - self.planet2.planet_body.position.x) + abs(self.player.player_body.position.y - self.planet2.planet_body.position.y)
-
-            if self.player.planet_joint is not None:
-                self.player.planet_joint.max_force = 0
-
-            if d1 < d2:
-                self.player.planet_joint = self.player.player_body.junction(self.planet1.planet_body).pivot()
-                self.player.landed_on = self.planet1
-            else:
-                self.player.planet_joint = self.player.player_body.junction(self.planet2.planet_body).pivot()
-                self.player.landed_on = self.planet2
-                # p_angle = Vec2d(*(self.player.player_body.position - self.planet2.planet_body.position))
-
-            self.player.planet_joint.max_force = float("inf")
-
-        if self.player.landed_on is not None:
-            p_angle = Vec2d(*(self.player.player_body.position - self.player.landed_on.planet_body.position))
-            self.player.player_body.angle = p_angle.rotated(-90).angle
-            
+        # Camera segue o Player
+        self.camera.follow(self.player.player_body.position)            
+        
+        # atualiza particulas
         self.particles.update()
 
-
+    
     def draw(self):
         pyxel.cls(0)
 
