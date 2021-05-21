@@ -73,6 +73,16 @@ def centralized_text(camera, x, y, text, col, flag, col2=0):
         camera.text(x_fix, y, text, col)
     elif flag == 3:
         pyxel.text(x_fix, y, text, col)
+    elif flag == 4:
+        pyxel.text(x_fix-1, y-1, text, col2)
+        pyxel.text(x_fix+1, y+1, text, col2)
+        pyxel.text(x_fix-1, y+1, text, col2)
+        pyxel.text(x_fix+1, y-1, text, col2)
+        pyxel.text(x_fix, y-1, text, col2)
+        pyxel.text(x_fix, y+1, text, col2)
+        pyxel.text(x_fix-1, y, text, col2)
+        pyxel.text(x_fix+1, y, text, col2)
+        pyxel.text(x_fix, y, text, col)
 
 class ColType(enum.IntEnum):
     PLAYER = 1
