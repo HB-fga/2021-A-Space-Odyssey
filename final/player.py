@@ -43,7 +43,15 @@ class Player(utils.GameObject):
         self.slingshot = Vec2d(camera.mouse_x - pyxel.width / 2, camera.mouse_y - pyxel.height / 2).rotated(180)
 
         if pyxel.btn(pyxel.MOUSE_LEFT_BUTTON) and self.landed_on is not None:
-            camera.line(*(self.slingshot + self.player_body.position), *self.player_body.position, pyxel.COLOR_LIME)
+            arrow = self.slingshot
+            camera.line(*(arrow + self.player_body.position), *self.player_body.position, pyxel.COLOR_LIME)
+            # camera.tri(0, 6, -3, -3, +3, -3, pyxel.COLOR_LIME)
+
+            # arrow2 = arrow.rotated(-90)
+            # camera.line(*(arrow * 30 + self.player_body.position), *(arrow2 + self.player_body.position), pyxel.COLOR_LIME)
+
+            # arrow3 = arrow.rotated(90)
+            # camera.line(*(arrow * 30 + self.player_body.position), *(arrow3 * 28) + self.player_body.position, pyxel.COLOR_LIME)
 
 
         if random.randint(0, 100) == pyxel.frame_count % 101 and self.blinking == 0:

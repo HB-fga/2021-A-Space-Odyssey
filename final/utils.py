@@ -8,18 +8,20 @@ from easymunk import pyxel as phys
 
 WIDTH, HEIGHT = 256, 196
 
+DEATH_COLORS = [11, 3, 5]
+
 class Particles:
     def __init__(self, space):
         self.particles = []
         self.space = space
 
-    def draw(self, camera=pyxel):
+    def draw(self, col_list=[1, 2, 3], camera=pyxel):
         for p in self.particles:
             x, y = p.position
             if random.random() < 0.15:
-                camera.rect(x, y, 2, 2, self.get_color(p.duration))
+                camera.rect(x, y, 2, 2, self.get_color(p.duration, col_list))
             else:
-                camera.pset(x, y, self.get_color(p.duration))
+                camera.pset(x, y, self.get_color(p.duration, col_list))
 
     def update(self):
         for p in self.particles.copy():
@@ -41,39 +43,43 @@ class Particles:
         p.duration = 70 - random.expovariate(1 / 10)
         self.particles.append(p)
 
-    def get_color(self, t):
+    def get_color(self, t, col_list):
         if t > 40:
-            return 7
+            return col_list[0]
         elif t > 25:
-            return 13
+            return col_list[1]
         else:
-            return 1
+            return col_list[2]
 
-def centralized_text(camera, x, y, text, col, flag):
+
+def centralized_text(camera, x, y, text, col, flag, col2=0):
     n = len(text)
     x_fix = (x - (n * pyxel.FONT_WIDTH) / 2)
 
     if flag == 0:
         camera.text(x_fix, y, text, col)
     elif flag == 1:
-        camera.text(x_fix+1, y+1, text, 0)
+        camera.text(x_fix+1, y+1, text, col2)
         camera.text(x_fix, y, text, col)
     elif flag == 2:
-        camera.text(x_fix-1, y-1, text, 0)
-        camera.text(x_fix+1, y+1, text, 0)
-        camera.text(x_fix-1, y+1, text, 0)
-        camera.text(x_fix+1, y-1, text, 0)
-        camera.text(x_fix, y-1, text, 0)
-        camera.text(x_fix, y+1, text, 0)
-        camera.text(x_fix-1, y, text, 0)
-        camera.text(x_fix+1, y, text, 0)
+        camera.text(x_fix-1, y-1, text, col2)
+        camera.text(x_fix+1, y+1, text, col2)
+        camera.text(x_fix-1, y+1, text, col2)
+        camera.text(x_fix+1, y-1, text, col2)
+        camera.text(x_fix, y-1, text, col2)
+        camera.text(x_fix, y+1, text, col2)
+        camera.text(x_fix-1, y, text, col2)
+        camera.text(x_fix+1, y, text, col2)
         camera.text(x_fix, y, text, col)
+    elif flag == 3:
+        pyxel.text(x_fix, y, text, col)
 
 class ColType(enum.IntEnum):
     PLAYER = 1
     PLANET = 2
     MOON = 3
     SHIP = 4
+    ENEMY = 5
 
 class GameState(enum.IntEnum):
     RUNNING = 1

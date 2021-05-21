@@ -42,8 +42,6 @@ ectanus.mass = 1e10
 ectanus.angular_velocity = 100
 ectanus.collision_type = PLANET_COL_TYPE
 
-# sun.motor(3 * (- 360)).max_force = 1e5
-
 # setting landable planets constraints
 player.position = (pyxel.width / 2 + 20, pyxel.height / 2)
 p1 = player.junction(sun).pivot()
