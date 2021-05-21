@@ -43,21 +43,47 @@ class Particles:
 
     def get_color(self, t):
         if t > 40:
-            return pyxel.COLOR_YELLOW
+            return 7
         elif t > 25:
-            return pyxel.COLOR_BROWN
+            return 13
         else:
-            return pyxel.COLOR_GRAY
+            return 1
+
+def centralized_text(camera, x, y, text, col, flag):
+    n = len(text)
+    x_fix = (x - (n * pyxel.FONT_WIDTH) / 2)
+
+    if flag == 0:
+        camera.text(x_fix, y, text, col)
+    elif flag == 1:
+        camera.text(x_fix+1, y+1, text, 0)
+        camera.text(x_fix, y, text, col)
+    elif flag == 2:
+        camera.text(x_fix-1, y-1, text, 0)
+        camera.text(x_fix+1, y+1, text, 0)
+        camera.text(x_fix-1, y+1, text, 0)
+        camera.text(x_fix+1, y-1, text, 0)
+        camera.text(x_fix, y-1, text, 0)
+        camera.text(x_fix, y+1, text, 0)
+        camera.text(x_fix-1, y, text, 0)
+        camera.text(x_fix+1, y, text, 0)
+        camera.text(x_fix, y, text, col)
 
 class ColType(enum.IntEnum):
     PLAYER = 1
     PLANET = 2
+    MOON = 3
+    SHIP = 4
 
 class GameState(enum.IntEnum):
     RUNNING = 1
     MENU = 2
     GAME_OVER = 3
     HAS_WON = 4
+    OPTIONS = 5
+    CREDITS = 6
+    TRANSITION = 7
+    PAUSED = 8
 
 class GameObject(ABC):
     @abstractmethod
