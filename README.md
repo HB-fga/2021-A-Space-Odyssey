@@ -20,7 +20,7 @@ Este projeto foi realizado para o curso "Física para Jogos 1" da UnB-FGA
 - pymunk                     6.0.0
 - easymunk-physics           0.9.2 
 
-## Install and Run
+## Install and Run (Debian like OS)
 
     $ pip3 install pyxel pymunk easymunk-physics
     $ git clone https://github.com/HB-fga/2021-A-Space-Odyssey.git
