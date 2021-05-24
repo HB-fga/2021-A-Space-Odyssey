@@ -25,5 +25,4 @@ Este projeto foi realizado para o curso "Física para Jogos 1" da UnB-FGA
     $ pip3 install pyxel pymunk easymunk-physics
     $ git clone https://github.com/HB-fga/2021-A-Space-Odyssey.git
     $ cd 2021-A-Space-Odyssey/game
-    $ cd game
     $ python3 game.py
