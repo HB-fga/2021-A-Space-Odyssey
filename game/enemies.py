@@ -19,7 +19,7 @@ class Ufo(utils.GameObject):
         self.over = None
         # self.planet_body.mass = ...
         
-    def update(self, player):
+    def update(self):
         ...
 
 
