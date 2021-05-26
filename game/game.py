@@ -18,14 +18,14 @@ class Game:
             camera = self.camera,
             elasticity = 1.0,
         )
-
+        pyxel.load("assets.pyxres")
+        self.sprite_manager = 0
+        self.difficulty = 10
         self.transition = 0
         self.stage_height = -950
-        pyxel.load("assets.pyxres")
-        # Inicializa objetos
         self.state = utils.GameState.MENU
 
-        self.sprite_manager = 0
+        # Inicializa objetos
 
         self.player = player.Player(utils.WIDTH/2, utils.HEIGHT/2-26)
         self.player.register(self.space)
@@ -45,11 +45,7 @@ class Game:
 
         self.particles = utils.Particles(self.space)
 
-        # Cria margem
-        L = 48
-        self.margin = phys.margin(-L, -L, pyxel.width + 2 * L, pyxel.height + 2 * L, 0)
-
-    # Administra colisões
+        # Administra colisões
         self.space.collision_handler(
             utils.ColType.PLAYER, utils.ColType.PLANET, post_solve=self.on_planet
         )
@@ -88,21 +84,18 @@ class Game:
         for _ in range(2):
             self.particles.emmit(
                 position=self.player.player_body.local_to_world((random.uniform(-2, 2), -3)),
-                velocity=(0, 0) #-random.uniform(50, 90) * self.player.player_body.rotation_vector.rotated(90),
+                velocity=(0, 0) 
             )
 
     def update(self):
         self.space.step(1 / 30, 2)
 
         self.player.update(self.camera)
-        self.particles.update()
-
-        print(self.state)    
+        self.particles.update()  
 
         if self.state is not utils.GameState.PAUSED and self.state is not utils.GameState.CREDITS and self.state is not utils.GameState.GAME_OVER:
             self.planets[0].planet_body.position -= (self.transition, 0)       
             self.planets[2].planet_body.position += (self.transition, 0) 
-
         
             for p in self.planets:
                 p.update(self.player.player_body)
@@ -112,50 +105,54 @@ class Game:
                 self.camera.follow(self.player.landed_on.position)
             else:
                 self.camera.follow(self.player.player_body.position)            
-            
 
-        # Atualiza lógica caso o jogo esteja rodando
+        # Atualiza lógica dependendo do Game State
         if self.state == utils.GameState.MENU:
             if self.player.landed_on is not None and pyxel.btnp(pyxel.KEY_SPACE):
                 if self.player.landed_on.radius == 18:
-                    # self.state = utils.GameState.OPTIONS
-                    ...
+                    self.state = utils.GameState.OPTIONS
                 elif self.player.landed_on.radius == 20:
                     self.transition = 0
                     self.state = utils.GameState.TRANSITION
                 elif self.player.landed_on.radius == 16:
                     self.state = utils.GameState.CREDITS
+
+            if utils.check_oob(self.player, -20, 20, 20, -20):
+                self.player.player_body.velocity = (0, 10)
+                self.player.player_body.position = (utils.WIDTH/2, utils.HEIGHT/2-26)
+
         elif self.state == utils.GameState.TRANSITION :
             if self.transition < 50:
                 self.transition += 2 
             elif self.transition >= 50:
                 self.transition = 0
                 self.state = utils.GameState.RUNNING
-                self.space.remove(self.margin)
                 i = 0
                 dist = 0
-                while i < 10 :
-                    dist =(-100*(i)) - self.planets[-1].planet_body.radius
+
+                while i < self.difficulty :
+                    dist = (-100*i) - self.planets[-1].planet_body.radius
                     if i == 0:
                         temp = 0
                     else:
                         temp = 1
+
                     new_planet = planet.Planet(random.randint(40, utils.WIDTH - 40),  dist, random.randint(8, 30), temp)
                     new_planet.register(self.space)
                     self.planets.append(new_planet)
-
-                    # print(dist)
                     i += 1
+
                 self.stage_height = dist - 100
+
         elif self.state == utils.GameState.RUNNING :
-            if self.player.player_body.position.x < -190 or self.player.player_body.position.x > utils.WIDTH + 190 or self.player.player_body.position.y > 230:
+            if utils.check_oob(self.player, -190, 190, 230, -5000):
                 self.state = utils.GameState.GAME_OVER
             if self.player.player_body.position.y < self.stage_height :
                 self.state = utils.GameState.HAS_WON
+
         elif self.state == utils.GameState.GAME_OVER :
             if pyxel.btnp(pyxel.KEY_SPACE):
                 while len(self.planets) > 3:
-                    # print(len(self.planets))
                     self.space.remove(self.planets[-1].planet_body)
                     self.planets.pop()
 
@@ -165,18 +162,19 @@ class Game:
                 self.player.player_body.velocity = (0, 10)
                 self.player.player_body.position = (utils.WIDTH/2, utils.HEIGHT/2-26)
 
-                L = 48
-                self.margin = phys.margin(-L, -L, pyxel.width + 2 * L, pyxel.height + 2 * L, 0)
-
                 self.state = utils.GameState.MENU
+
         elif self.state == utils.GameState.CREDITS :
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self.state = utils.GameState.MENU
+
         elif self.state == utils.GameState.OPTIONS :
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self.state = utils.GameState.MENU
+
         elif self.state == utils.GameState.HAS_WON :
             self.player.player_body.velocity = (0,0)
+
             if pyxel.btnp(pyxel.KEY_SPACE):
                 while len(self.planets) > 3:
                     # print(len(self.planets))
@@ -193,13 +191,12 @@ class Game:
                 self.player.player_body.velocity = (0, 10)
                 self.player.player_body.position = (utils.WIDTH/2, utils.HEIGHT/2-26)
 
-                L = 48
-                self.margin = phys.margin(-L, -L, pyxel.width + 2 * L, pyxel.height + 2 * L, 0)
-
                 self.state = utils.GameState.MENU
     
     def draw(self):
         pyxel.cls(0)
+
+        # REFACTOR
 
         xa = -500
         ya = -1000
@@ -222,14 +219,14 @@ class Game:
             ya = -1000
             xa += 16
 
-        
+        # END REFACTOR
 
-        for p in self.planets:
-            p.draw(self.camera)
         
-        self.camera.draw(self.margin)
-
+        
         if self.state is not utils.GameState.GAME_OVER:
+            for p in self.planets:
+                p.draw(self.camera)
+
             self.camera.draw(self.player.player_body)
             self.player.draw(self.camera)
 
@@ -240,32 +237,43 @@ class Game:
 
             self.particles.draw([col, 13, 1], self.camera)
 
+            # draw family
             self.camera.blt(utils.WIDTH/2, self.stage_height-10, 0, 48, 0, 16, 16)
             self.camera.blt(utils.WIDTH/2-30, self.stage_height-8, 0, 48, 0, 16, 16)
             self.camera.blt(utils.WIDTH/2+32, self.stage_height-9, 0, 48, 0, 16, 16)
 
+
         if(self.state == utils.GameState.MENU or self.state == utils.GameState.TRANSITION):
+            # draw title
             utils.centralized_text(self.camera, utils.WIDTH/2, utils.HEIGHT/2-58 - self.transition*2, "2021:", pyxel.COLOR_WHITE, 0)
             self.camera.blt(utils.WIDTH/2-16, utils.HEIGHT/2-50 - self.transition*2, 0, 0, 56, 40, 16)
-            utils.centralized_text(self.camera, utils.WIDTH/2, utils.HEIGHT/2+80 + self.transition*2, "Click and drag to fly       Press Space to Confirm", pyxel.COLOR_WHITE, 2, pyxel.COLOR_RED)
-            utils.centralized_text(self.camera, self.planets[0].planet_body.position.x - self.transition, self.planets[0].planet_body.position.y, "Options", pyxel.COLOR_GRAY, 2)
-            utils.centralized_text(self.camera, self.planets[2].planet_body.position.x + self.transition, self.planets[2].planet_body.position.y, "Credits", pyxel.COLOR_WHITE, 2)
+
+            # draw UI
             if self.state == utils.GameState.MENU:
                 utils.centralized_text(self.camera, *self.planets[1].planet_body.position, "Start", pyxel.COLOR_WHITE, 2)
+
+            utils.centralized_text(self.camera, self.planets[0].planet_body.position.x - self.transition, self.planets[0].planet_body.position.y, "Options", pyxel.COLOR_GRAY, 2)
+            utils.centralized_text(self.camera, self.planets[2].planet_body.position.x + self.transition, self.planets[2].planet_body.position.y, "Credits", pyxel.COLOR_WHITE, 2)
+            utils.centralized_text(self.camera, utils.WIDTH/2, utils.HEIGHT/2+80 + self.transition*2, "Click and drag to fly       Press Space to Confirm", pyxel.COLOR_WHITE, 2, pyxel.COLOR_RED)
+            
         elif self.state == utils.GameState.CREDITS:
             pyxel.cls(0)
             pyxel.text(20, utils.HEIGHT/2-10, "Everything done by: Hugo Bezerra :D", pyxel.frame_count % 15+1)
             pyxel.text(20, utils.HEIGHT/2+10, "Press Space to return", pyxel.COLOR_WHITE)
+
+        elif self.state == utils.GameState.OPTIONS:
+            pyxel.cls(0)
+            pyxel.text(20, utils.HEIGHT/2-10, "Options will go here xD", pyxel.COLOR_WHITE)
+            pyxel.text(20, utils.HEIGHT/2+10, "Press Space to return", pyxel.COLOR_WHITE)
+
         elif self.state == utils.GameState.GAME_OVER:
             utils.centralized_text(self.camera, utils.WIDTH/2, utils.HEIGHT/2, "Press Space to try again", pyxel.COLOR_WHITE, 4, pyxel.COLOR_RED)    
-            # print("hey")
             self.particles.draw(utils.DEATH_COLORS, self.camera)
+
         elif self.state == utils.GameState.HAS_WON:
             utils.centralized_text(self.camera, self.player.player_body.position.x, self.player.player_body.position.y+20, "CONGRATULATIONS!", pyxel.COLOR_WHITE, 2, col2=10)    
             utils.centralized_text(self.camera, self.player.player_body.position.x, self.player.player_body.position.y+30, "You Returned to your Home and Family", pyxel.COLOR_WHITE, 2, col2=10)    
         
-
-
 pyxel.init(utils.WIDTH, utils.HEIGHT)
 pyxel.mouse(True)
 game = Game()

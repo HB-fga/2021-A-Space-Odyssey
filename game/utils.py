@@ -51,6 +51,12 @@ class Particles:
         else:
             return col_list[2]
 
+# check out of bounds
+def check_oob(player, xl, xr, yd, yu):
+    if player.player_body.position.x < xl or player.player_body.position.x > WIDTH + xr or player.player_body.position.y > HEIGHT + yu or player.player_body.position.y < yd:
+        return True
+    else:
+        return False
 
 def centralized_text(camera, x, y, text, col, flag, col2=0):
     n = len(text)
