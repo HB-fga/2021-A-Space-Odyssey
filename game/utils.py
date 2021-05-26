@@ -7,8 +7,20 @@ from easymunk import Vec2d, Arbiter, CircleBody, Space, ShapeFilter
 from easymunk import pyxel as phys
 
 WIDTH, HEIGHT = 256, 196
-
 DEATH_COLORS = [11, 3, 5]
+
+class GameObject(ABC):
+    @abstractmethod
+    def update(self):
+        ...
+    
+    @abstractmethod
+    def draw(self):
+        ...
+
+    @abstractmethod
+    def register(self, space: Space, message: Callable[[str, "GameObject"], None]):
+        ...
 
 class Particles:
     def __init__(self, space):
@@ -53,11 +65,12 @@ class Particles:
 
 # check out of bounds
 def check_oob(player, xl, xr, yd, yu):
-    if player.player_body.position.x < xl or player.player_body.position.x > WIDTH + xr or player.player_body.position.y > HEIGHT + yu or player.player_body.position.y < yd:
+    if player.player_body.position.x < xl or player.player_body.position.x > WIDTH + xr or player.player_body.position.y < yu or player.player_body.position.y > HEIGHT + yd :
         return True
     else:
         return False
 
+# draw centralized text
 def centralized_text(camera, x, y, text, col, flag, col2=0):
     n = len(text)
     x_fix = (x - (n * pyxel.FONT_WIDTH) / 2)
@@ -106,16 +119,3 @@ class GameState(enum.IntEnum):
     CREDITS = 6
     TRANSITION = 7
     PAUSED = 8
-
-class GameObject(ABC):
-    @abstractmethod
-    def update(self):
-        ...
-    
-    @abstractmethod
-    def draw(self):
-        ...
-
-    @abstractmethod
-    def register(self, space: Space, message: Callable[[str, "GameObject"], None]):
-        ...

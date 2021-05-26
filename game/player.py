@@ -8,7 +8,6 @@ import pyxel
 import random
 
 class Player(utils.GameObject):
-
     def __init__(self, x, y):
         self.slingshot = Vec2d(0, 0)
         self.landed_on = None
@@ -17,7 +16,6 @@ class Player(utils.GameObject):
         self.player_body.position = (x, y)
         self.player_body.elasticity = 1.0
         self.player_body.collision_type = utils.ColType.PLAYER
-
         self.blinking = 0
         
     def update(self, camera):
@@ -53,10 +51,8 @@ class Player(utils.GameObject):
             # arrow3 = arrow.rotated(90)
             # camera.line(*(arrow * 30 + self.player_body.position), *(arrow3 * 28) + self.player_body.position, pyxel.COLOR_LIME)
 
-
         if random.randint(0, 100) == pyxel.frame_count % 101 and self.blinking == 0:
             self.blinking = 15
-
 
         if self.blinking > 0:
             camera.circ(*self.player_body.position, 1, 3)

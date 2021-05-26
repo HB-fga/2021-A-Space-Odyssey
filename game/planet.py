@@ -14,18 +14,15 @@ import random
 # 10 9
 # 11 3
 
-# Gravitational constants
+# variáveis gravitacionais
 S_mass = 100
 G = 1e2
-a = 16 # "a" is here to make things smoother 
+a = 16 
 alpha = 1
 
 class Planet(utils.GameObject):
-
     def __init__(self, x, y, r, flag):
-
         choose_color = random.randint(0, 3)
-
         if choose_color == 0:
             col1 = 6
             col2 = 12
@@ -56,7 +53,6 @@ class Planet(utils.GameObject):
                 self.moon = phys.circ(self.planet_body.position.x + 2*self.planet_body.radius, self.planet_body.position.y + 2*self.planet_body.radius, random.randint(2, 4), col1+1)
                 self.moon.elasticity=1.0
                 self.moon.collision_type = utils.ColType.ENEMY
-                # self.moon.mass = ...
         
                 dist = self.moon.position - self.planet_body.position
                 r = dist.length
@@ -81,10 +77,8 @@ class Planet(utils.GameObject):
         self.crater_r3 = random.uniform(1, self.planet_body.radius/2-2)
         self.crater_pos3 = random.uniform(2+self.crater_r3, self.planet_body.radius-self.crater_r3-2)
 
-
-
-    def update(self, player):
-        self.planet_body.angular_velocity = 1500/self.planet_body.radius
+    def update(self, player, difficulty):
+        self.planet_body.angular_velocity = (difficulty*800)/self.planet_body.radius
 
         if self.moon is not None:
             dist = self.moon.position - self.planet_body.position
@@ -93,15 +87,12 @@ class Planet(utils.GameObject):
             F = G * S_mass * self.moon.mass / (r + a)**alpha
 
             self.moon.force += -F * direction
-            # print("moon mass = ", self.moon.mass)
 
         if self.ufo is not None:
             x1, y1 = player.position
             x2, y2 = self.ufo.ufo_body.position
 
             dist = sqrt( (x2 - x1)**2 + (y2 - y1)**2 )
-
-            # print("ufo/player dist", dist)
 
             if dist < 70:
                 self.ufo.hatch_col = 8
@@ -119,19 +110,12 @@ class Planet(utils.GameObject):
                 r = dist.length
                 F = G * S_mass * self.ufo.ufo_body.mass / (r + a)**alpha
 
-                # print("ufo applied force", F)
-
                 self.ufo.ufo_body.force += -F * direction
 
                 p_angle = Vec2d(*(self.ufo.ufo_body.position - self.planet_body.position))
                 self.ufo.ufo_body.angle = p_angle.rotated(90).angle
-                # print("ufo mass = ", self.ufo.ufo_body.mass)
     
     def draw(self, camera): 
-
-        if self.ufo is not None:
-            self.ufo.draw(camera)
-
         camera.circ(*self.planet_body.position, self.planet_body.radius+3, self.crater_col)      
         camera.circ(*self.planet_body.position, self.planet_body.radius, self.planet_body.color)      
 
@@ -150,6 +134,9 @@ class Planet(utils.GameObject):
         camera.circb(crater_x, crater_y, self.crater_r3, self.crater_col)
         camera.circ(crater_x, crater_y, self.crater_r3-2, self.crater_col)
 
+        if self.ufo is not None:
+            self.ufo.draw(camera)
+
         if self.moon is not None:
             camera.circ(*self.moon.position, self.moon.radius, self.moon.color)
 
@@ -157,8 +144,6 @@ class Planet(utils.GameObject):
                 self.trajectory.append(self.moon.position)
             for (x, y) in self.trajectory:
                 camera.pset(x, y, self.moon.color)
-
-        
 
     def register(self, space):
         space.add(self.planet_body)
