@@ -10,9 +10,9 @@ This project was made for the "Physics for Games 1" course from UnB-FGA
 
 ### Português
 
-2021: A Space Odyssey é um jogo feito em [pyxel](https://github.com/kitao/pyxel) + [easymunk](https://github.com/fabiommendes/easymunk) onde você joga como um alienígena que foge do governo e tenta voltar para sua família
+2021: A Space Odyssey é um jogo feito em [pyxel](https://github.com/kitao/pyxel) + [easymunk](https://github.com/fabiommendes/easymunk) onde você joga como um alienígena que foge do governo e tenta voltar para sua família  
 
-Este projeto foi realizado para o curso "Física para Jogos 1" da UnB-FGA
+Este projeto foi realizado para a disciplina de "Física para Jogos 1" da UnB-FGA
 
 ## Dependencies
 - Python                     3.8.5
