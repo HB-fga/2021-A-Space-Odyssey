@@ -2,7 +2,17 @@
 
 ![banner](https://raw.githubusercontent.com/HB-fga/2021-A-Space-Odyssey/master/banner.png)
 
-### English
+## Gifs
+![](https://i.imgur.com/cXf4put.gif)
+![](https://i.imgur.com/DBm2ATw.gif)
+
+## Images
+![](https://i.imgur.com/TGKPvmJ.png)
+![](https://i.imgur.com/gzlugpc.png)
+
+## Description
+    
+### English 
 
 2021: A Space Odyssey is a [pyxel](https://github.com/kitao/pyxel) + [easymunk](https://github.com/fabiommendes/easymunk) game where you play as an alien escaping the government and trying to get back to his family  
 
